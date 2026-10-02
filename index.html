@@ -123,7 +123,8 @@ const H=[['あ','a'],['い','i'],['う','u'],['え','e'],['お','o'],['か','ka'
 const K=[['ア','a'],['イ','i'],['ウ','u'],['エ','e'],['オ','o'],['カ','ka'],['キ','ki'],['ク','ku'],['ケ','ke'],['コ','ko'],['サ','sa'],['シ','shi'],['ス','su'],['セ','se'],['ソ','so'],['タ','ta'],['チ','chi'],['ツ','tsu'],['テ','te'],['ト','to'],['ナ','na'],['ニ','ni'],['ヌ','nu'],['ネ','ne'],['ノ','no'],['ハ','ha'],['ヒ','hi'],['フ','fu'],['ヘ','he'],['ホ','ho'],['マ','ma'],['ミ','mi'],['ム','mu'],['メ','me'],['モ','mo'],['ヤ','ya'],['ユ','yu'],['ヨ','yo'],['ラ','ra'],['リ','ri'],['ル','ru'],['レ','re'],['ロ','ro'],['ワ','wa'],['ヲ','wo'],['ン','n']];
 const rows=[['あ行',0,5],['か行',5,10],['さ行',10,15],['た行',15,20],['な行',20,25],['は行',25,30],['ま行',30,35],['や行',35,38],['ら行',38,43],['わ行',43,46]];
 let last=null,current=null,score=0,total=0,wrong=0;
-let errors=JSON.parse(localStorage.getItem('kanaErrors')||'{}');\nlet daily=JSON.parse(localStorage.getItem('kanaDaily')||'{"last":"","streak":0,"xp":0,"totalDays":0}');
+let errors=JSON.parse(localStorage.getItem('kanaErrors')||'{}');
+let daily=JSON.parse(localStorage.getItem('kanaDaily')||'{"last":"","streak":0,"xp":0,"totalDays":0}');
 
 
 const tableRows = [
@@ -155,7 +156,7 @@ const tableMapK = {
   ra:'ラ',ri:'リ',ru:'ル',re:'レ',ro:'ロ',wa:'ワ',wo:'ヲ',n:'ン'
 };
 const tableD = [
- ['が','gi?','ga'],['ぎ','gi','gi'],['ぐ','gu','gu'],['げ','ge','ge'],['ご','go','go'],
+ ['が','ga','ga'],['ぎ','gi','gi'],['ぐ','gu','gu'],['げ','ge','ge'],['ご','go','go'],
  ['ざ','za','za'],['じ','ji','ji'],['ず','zu','zu'],['ぜ','ze','ze'],['ぞ','zo','zo'],
  ['だ','da','da'],['ぢ','ji','ji'],['づ','zu','zu'],['で','de','de'],['ど','do','do'],
  ['ば','ba','ba'],['び','bi','bi'],['ぶ','bu','bu'],['べ','be','be'],['ぼ','bo','bo'],
