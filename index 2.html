@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kana Studio</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#f5f1ea}*{box-sizing:border-box}body{margin:0}main{min-height:100vh;max-width:760px;margin:auto;padding:24px 16px 44px}.top{display:flex;justify-content:space-between;align-items:center}.logo{font-size:27px;font-weight:800}.jp{font-size:13px;color:#777}.hero{margin:28px 0 18px}.hero h1{font-size:36px;line-height:1.05;margin:0 0 9px}.hero p{color:#667085;margin:0}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:20px 0}.tab,.choice,.btn,.select{border:0;border-radius:15px;padding:13px 15px;font-size:16px;font-weight:700;cursor:pointer}.tab{background:#fff;border:1px solid #ddd7ce}.tab.active,.btn{background:#172033;color:#fff}.card{background:#fff;border:1px solid #e2ddd5;border-radius:23px;padding:20px;box-shadow:0 8px 30px #0000000b}.section{display:none}.section.active{display:block}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0 18px}.select{width:100%;background:#f4efe8;border:1px solid #ded7cc}.rowtitle{font-weight:800;margin:18px 0 7px}.row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.kana{padding:12px 3px;background:#f4efe8;border-radius:13px;text-align:center;cursor:pointer}.kana:active{transform:scale(.97)}.kana b{font-size:26px;display:block}.kana small{color:#777}.note{font-size:13px;color:#777;margin-top:17px;text-align:center}.quiz-head{display:flex;justify-content:space-between;color:#667085;font-size:14px}.progress{height:8px;background:#e8e3db;border-radius:99px;overflow:hidden;margin:13px 0 20px}.bar{height:100%;width:0;background:#172033;transition:.25s}.symbol{text-align:center;font-size:88px;font-weight:500;margin:16px 0 4px;line-height:1.2}.prompt{text-align:center;color:#667085;margin-bottom:18px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}.choice{background:#f4efe8;font-size:19px}.choice.correct{background:#dff5e7}.choice.wrong{background:#ffe4e0}.feedback{text-align:center;min-height:27px;margin:14px 0 4px;font-weight:700}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}.stat{background:#f4efe8;border-radius:14px;padding:12px;text-align:center}.stat b{display:block;font-size:21px}.danger{background:#fff;border:1px solid #ddd7ce;color:#667085;width:100%;margin-top:10px}.hidden{display:none}.small{font-size:12px;color:#777}.section h2{margin:0}.divider{border:0;border-top:1px solid #ebe6de;margin:22px 0}@media(max-width:500px){.hero h1{font-size:31px}.row{gap:5px}.kana{padding:10px 2px}.kana b{font-size:24px}.symbol{font-size:74px}}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:flex-end;justify-content:center;padding:12px;z-index:20}.modal.open{display:flex}.sheet{width:min(620px,100%);background:#fff;border-radius:24px 24px 16px 16px;padding:18px;box-shadow:0 12px 50px rgba(0,0,0,.25)}.sheetHead{display:flex;align-items:center;justify-content:space-between;gap:12px}.sheetKana{font-size:64px;font-weight:700;line-height:1}.meaning{font-size:16px;color:#596275;margin-top:3px}.example{margin:10px 0 14px;padding:10px 12px;background:#f5f1ea;border-radius:12px}.example b{font-size:22px;margin-right:8px}.canvasWrap{position:relative;border:2px dashed #b8c0ce;border-radius:18px;background:repeating-linear-gradient(0deg,#fff,#fff 43px,#edf0f4 44px);touch-action:none}.canvasWrap canvas{display:block;width:100%;height:300px;touch-action:none}.guide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:150px;color:rgba(120,130,145,.13);pointer-events:none}.sheetBtns{display:flex;gap:10px;margin-top:12px}.sheetBtns button{flex:1}.guideToggle{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;font-size:14px;color:#596275}.guideToggle input{width:18px;height:18px;accent-color:#596275}.small{font-size:12px;color:#7b8493;text-align:center;margin-top:8px}.strokeBox{margin:12px 0 0;padding:12px;border:1px solid #e3e6eb;border-radius:16px;background:#fafbfc}.strokeHead{display:flex;align-items:center;justify-content:space-between;gap:10px}.strokeTitle{font-weight:700}.strokeSvg{height:210px;margin:6px auto 0;display:block;max-width:100%}.strokeNote{font-size:12px;color:#7b8493;text-align:center;margin-top:4px}.strokeActions{display:flex;gap:8px;margin-top:8px}.strokeActions button{flex:1}
+@keyframes strokeDraw{to{stroke-dashoffset:0}}
+
+.dailyBonus{margin:16px 0 18px;background:#fff;border:1px solid #e2ddd5;border-radius:20px;padding:16px 18px;box-shadow:0 6px 24px #00000009}.dailyTop{display:flex;justify-content:space-between;align-items:center;gap:12px}.dailyTitle{font-weight:800;font-size:17px}.dailySub{font-size:13px;color:#667085;margin-top:3px}.dailyXP{font-size:20px;font-weight:900;white-space:nowrap}.streak{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px solid #ebe6de}.streakFire{font-size:22px}.streakText{font-weight:750}.streakText small{display:block;color:#667085;font-weight:400;margin-top:2px}.bonusBadge{margin-left:auto;padding:7px 10px;border-radius:999px;background:#f4efe8;font-size:12px;font-weight:800}.bonusBadge.claimed{background:#dff5e7}.bonusPulse{animation:bonusPulse .7s ease}@keyframes bonusPulse{0%{transform:scale(.96);opacity:.65}60%{transform:scale(1.02)}100%{transform:scale(1);opacity:1}}
+
+.dailyMission{margin:0 0 18px;background:#f8f5ef;border:1px solid #e5dfd4;border-radius:18px;padding:14px 16px}
+.missionHead{display:flex;align-items:center;gap:9px}.missionTitle{font-weight:850}.missionXP{margin-left:auto;font-weight:900}
+.missionText{font-size:14px;margin-top:7px}.missionBar{height:8px;background:#e7e1d7;border-radius:99px;overflow:hidden;margin-top:10px}
+.missionFill{height:100%;width:0;background:#333;transition:width .3s ease}.missionStatus{font-size:12px;color:#667085;margin-top:7px}
+
+.unlockBox{margin:0 0 18px;background:#fff;border:1px solid #e2ddd5;border-radius:20px;padding:16px 18px}
+.unlockTitle{font-weight:850;font-size:17px}.unlockSub{font-size:13px;color:#667085;margin-top:3px}
+.rows{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.rowBtn{border:1px solid #ddd6ca;background:#f7f4ee;border-radius:12px;padding:9px 11px;font-weight:750}
+.rowBtn.active{background:#222;color:#fff;border-color:#222}.rowBtn.locked{opacity:.45}
+
+.extraBox{margin:0 0 18px;background:#fff;border:1px solid #e2ddd5;border-radius:20px;padding:16px 18px}
+.extraTitle{font-weight:850;font-size:17px}.extraSub{font-size:13px;color:#667085;margin-top:3px}
+.extraTabs{display:flex;gap:8px;margin-top:12px}.extraTab{border:1px solid #ddd6ca;background:#f7f4ee;border-radius:11px;padding:8px 11px;font-weight:750}.extraTab.active{background:#222;color:#fff}
+.extraGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px;margin-top:12px}
+.extraCard{padding:10px;border:1px solid #e3ddd4;border-radius:13px;text-align:center;background:#fbfaf7;cursor:pointer}.extraCard .kana{font-size:30px}.extraCard small{display:block;color:#667085;margin-top:3px}
+
+.tablesBox{margin:0 0 18px;background:#fff;border:1px solid #e2ddd5;border-radius:20px;padding:16px 18px}
+.tablesTitle{font-weight:850;font-size:18px}.tablesSub{font-size:13px;color:#667085;margin-top:3px}
+.tableTabs{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.tableTab{border:1px solid #ddd6ca;background:#f7f4ee;border-radius:11px;padding:8px 10px;font-weight:750;cursor:pointer}
+.tableTab.active{background:#222;color:#fff;border-color:#222}
+.kanaTableWrap{overflow-x:auto;margin-top:14px}
+.kanaTable{width:100%;border-collapse:separate;border-spacing:5px;min-width:620px}
+.kanaTable th{font-size:12px;color:#667085;font-weight:700;padding:5px}
+.kanaCell{border:1px solid #e5dfd6;background:#fbfaf7;border-radius:12px;text-align:center;padding:8px;cursor:pointer;min-width:62px}
+.kanaCell:hover{background:#f1ede6}.kanaCell .jp{font-size:28px;line-height:1.1}.kanaCell .ro{font-size:12px;color:#667085;margin-top:3px}
+.tableHint{font-size:12px;color:#667085;margin-top:9px}
+
+.daily-lesson-card{margin:18px 0;padding:20px;border:1px solid rgba(127,127,127,.22);border-radius:20px;background:linear-gradient(135deg,rgba(127,127,127,.09),rgba(127,127,127,.03));}
+.lesson-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.lesson-head h2{margin:4px 0 5px}
+.eyebrow{font-size:.75rem;letter-spacing:.12em;opacity:.65;font-weight:700}
+.lesson-xp{font-weight:800;padding:8px 12px;border-radius:999px;background:rgba(127,127,127,.12)}
+.lesson-progress{height:8px;border-radius:99px;background:rgba(127,127,127,.14);overflow:hidden;margin:15px 0}
+#lessonProgressBar{height:100%;width:0%;transition:width .25s}
+.lesson-step{font-size:.85rem;opacity:.7;margin-bottom:10px}
+.lesson-kana{font-size:4rem;text-align:center;font-weight:700;margin:8px 0}
+.lesson-romaji{text-align:center;font-size:1.1rem;opacity:.75}
+.lesson-word{font-size:2rem;text-align:center;font-weight:700;margin:12px 0}
+.lesson-meaning{text-align:center;opacity:.8}
+.lesson-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px}
+.lesson-options button{padding:13px;border-radius:14px}
+.lesson-result{text-align:center;margin:12px 0;font-weight:700}
+.lesson-actions{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+@media(max-width:600px){.lesson-head{flex-direction:column}.lesson-options{grid-template-columns:1fr}}
+</style></head>
+<body><main>
+<div class="top"><div class="logo">Kana Studio</div><div class="jp">かな / カナ</div></div>
+<div class="hero"><h1>Impara hiragana e katakana.</h1><p>Memorizza i kana in italiano, senza confonderli.</p></div>
+<div class="dailyBonus" id="dailyBonus"><div class="dailyTop"><div><div class="dailyTitle">🎁 Bonus giornaliero</div><div class="dailySub" id="bonusMessage">Controllo del bonus di oggi…</div></div><div class="dailyXP" id="bonusXP">+10 XP</div></div><div class="streak"><div class="streakFire">🔥</div><div class="streakText"><span id="streakCount">0 giorni</span><small>serie consecutiva</small></div><div class="bonusBadge" id="bonusBadge">Oggi</div></div></div>
+<div class="unlockBox" id="unlockBox">
+  <div class="unlockTitle">🔓 Percorso di apprendimento</div>
+  <div class="unlockSub" id="unlockSub">Inizia dalla prima riga.</div>
+  <div class="rows" id="rows"></div>
+</div>
+
+<div class="extraBox">
+  <div class="extraTitle">✨ Kana avanzati</div>
+  <div class="extraSub">Si sbloccano dopo aver completato i kana base.</div>
+  <div class="extraTabs">
+    <button class="extraTab active" id="dakTab">゛ Dakuten</button>
+    <button class="extraTab" id="youTab">ゃ Combinazioni</button>
+  </div>
+  <div class="extraGrid" id="extraGrid"></div>
+</div>
+
+<div class="tablesBox">
+  <div class="tablesTitle">📚 Tabelle dei kana</div>
+  <div class="tablesSub">Tutto il sistema kana in un'unica sezione di consultazione.</div>
+  <div class="tableTabs">
+    <button class="tableTab active" data-table="h">Hiragana</button>
+    <button class="tableTab" data-table="k">Katakana</button>
+    <button class="tableTab" data-table="d">Dakuten / Handakuten</button>
+    <button class="tableTab" data-table="y">Combinazioni</button>
+  </div>
+  <div class="kanaTableWrap" id="kanaTableWrap"></div>
+  <div class="tableHint">Tocca un simbolo per aprire direttamente la lavagnetta.</div>
+</div>
+<div class="daily-lesson-card" id="dailyLesson">
+          <div class="lesson-head">
+            <div>
+              <div class="eyebrow">OGGI</div>
+              <h2>🌱 Lezione del giorno</h2>
+              <p id="lessonSubtitle">5 minuti per imparare, ripassare e scrivere.</p>
+            </div>
+            <div class="lesson-xp" id="lessonXP">+0 XP</div>
+          </div>
+          <div class="lesson-progress"><div id="lessonProgressBar"></div></div>
+          <div id="lessonStep" class="lesson-step"></div>
+          <div id="lessonContent"></div>
+          <div class="lesson-actions">
+            <button id="lessonStartBtn" class="primary" onclick="startDailyLesson()">▶ Inizia la lezione</button>
+            <button id="lessonNextBtn" class="secondary" onclick="nextLessonStep()" style="display:none">Continua →</button>
+          </div>
+        </div>
+
+        <div class="tabs"><button class="tab active" onclick="show('learn',this)">Impara</button><button class="tab" onclick="show('quiz',this)">Quiz</button></div>
+<section id="learn" class="section active"><div class="card">
+<h2>Impara</h2><div class="toolbar"><select id="learnSet" class="select" onchange="renderLearn()"><option value="hira">Hiragana</option><option value="kata">Katakana</option><option value="both">Entrambi</option></select><button class="select" onclick="speakLast()">🔊 Riascolta</button></div>
+<div id="learnGrid"></div><div class="note" id="note">Tocca un carattere per ascoltare la lettura.</div></div></section>
+<section id="quiz" class="section"><div class="card">
+<div class="quiz-head"><span id="mode">Hiragana → romaji</span><span>Corrette: <b id="score">0</b></span></div><div class="progress"><div class="bar" id="bar"></div></div>
+<div class="toolbar"><select id="quizSet" class="select" onchange="startQuiz()"><option value="hira">Solo hiragana</option><option value="kata">Solo katakana</option><option value="both">Hiragana + katakana</option><option value="all">Tutti i kana + varianti (casuale)</option><option value="errors">Ripassa i più sbagliati</option></select><div id="allQuizNote" class="note" style="width:100%">La modalità completa mescola casualmente hiragana, katakana, dakuten, handakuten, yōon e piccoli kana.</div><select id="quizMode" class="select" onchange="startQuiz()"><option value="read">Kana → lettura</option><option value="write">Lettura → kana</option><option value="audio">Audio → kana</option></select></div>
+<div class="symbol" id="symbol">あ</div><div class="prompt" id="prompt">Qual è la lettura?</div><button class="btn" id="replayAudio" style="display:none;margin:8px auto" onclick="speak(current[1])">🔊 Riascolta</button><div class="choices" id="choices"></div><div class="feedback" id="feedback"></div><button class="btn" onclick="nextQ()">Prossimo</button>
+<div class="stats"><div class="stat"><b id="accuracy">0%</b><span class="small">precisione</span></div><div class="stat"><b id="mistakes">0</b><span class="small">errori</span></div><div class="stat"><b id="mastered">0</b><span class="small">corretti</span></div></div>
+<button class="btn danger" onclick="resetStats()">Azzera progressi</button></div><div class="note">Gli errori vengono salvati solo su questo dispositivo.</div></section>
+</main>
+<script>
+const H=[['あ','a'],['い','i'],['う','u'],['え','e'],['お','o'],['か','ka'],['き','ki'],['く','ku'],['け','ke'],['こ','ko'],['さ','sa'],['し','shi'],['す','su'],['せ','se'],['そ','so'],['た','ta'],['ち','chi'],['つ','tsu'],['て','te'],['と','to'],['な','na'],['に','ni'],['ぬ','nu'],['ね','ne'],['の','no'],['は','ha'],['ひ','hi'],['ふ','fu'],['へ','he'],['ほ','ho'],['ま','ma'],['み','mi'],['む','mu'],['め','me'],['も','mo'],['や','ya'],['ゆ','yu'],['よ','yo'],['ら','ra'],['り','ri'],['る','ru'],['れ','re'],['ろ','ro'],['わ','wa'],['を','wo'],['ん','n']];
+const K=[['ア','a'],['イ','i'],['ウ','u'],['エ','e'],['オ','o'],['カ','ka'],['キ','ki'],['ク','ku'],['ケ','ke'],['コ','ko'],['サ','sa'],['シ','shi'],['ス','su'],['セ','se'],['ソ','so'],['タ','ta'],['チ','chi'],['ツ','tsu'],['テ','te'],['ト','to'],['ナ','na'],['ニ','ni'],['ヌ','nu'],['ネ','ne'],['ノ','no'],['ハ','ha'],['ヒ','hi'],['フ','fu'],['ヘ','he'],['ホ','ho'],['マ','ma'],['ミ','mi'],['ム','mu'],['メ','me'],['モ','mo'],['ヤ','ya'],['ユ','yu'],['ヨ','yo'],['ラ','ra'],['リ','ri'],['ル','ru'],['レ','re'],['ロ','ro'],['ワ','wa'],['ヲ','wo'],['ン','n']];
+const rows=[['あ行',0,5],['か行',5,10],['さ行',10,15],['た行',15,20],['な行',20,25],['は行',25,30],['ま行',30,35],['や行',35,38],['ら行',38,43],['わ行',43,46]];
+let last=null,current=null,score=0,total=0,wrong=0;
+let errors=JSON.parse(localStorage.getItem('kanaErrors')||'{}');\nlet daily=JSON.parse(localStorage.getItem('kanaDaily')||'{"last":"","streak":0,"xp":0,"totalDays":0}');
+
+
+const tableRows = [
+  ['a','i','u','e','o'],
+  ['ka','ki','ku','ke','ko'],
+  ['sa','shi','su','se','so'],
+  ['ta','chi','tsu','te','to'],
+  ['na','ni','nu','ne','no'],
+  ['ha','hi','fu','he','ho'],
+  ['ma','mi','mu','me','mo'],
+  ['ya','','yu','','yo'],
+  ['ra','ri','ru','re','ro'],
+  ['wa','','','','wo'],
+  ['n','','','','']
+];
+const tableLabels = ['A','I','U','E','O'];
+const tableMapH = {
+  a:'あ',i:'い',u:'う',e:'え',o:'お',ka:'か',ki:'き',ku:'く',ke:'け',ko:'こ',
+  sa:'さ',shi:'し',su:'す',se:'せ',so:'そ',ta:'た',chi:'ち',tsu:'つ',te:'て',to:'と',
+  na:'な',ni:'に',nu:'ぬ',ne:'ね',no:'の',ha:'は',hi:'ひ',fu:'ふ',he:'へ',ho:'ほ',
+  ma:'ま',mi:'み',mu:'む',me:'め',mo:'も',ya:'や',yu:'ゆ',yo:'よ',
+  ra:'ら',ri:'り',ru:'る',re:'れ',ro:'ろ',wa:'わ',wo:'を',n:'ん'
+};
+const tableMapK = {
+  a:'ア',i:'イ',u:'ウ',e:'エ',o:'オ',ka:'カ',ki:'キ',ku:'ク',ke:'ケ',ko:'コ',
+  sa:'サ',shi:'シ',su:'ス',se:'セ',so:'ソ',ta:'タ',chi:'チ',tsu:'ツ',te:'テ',to:'ト',
+  na:'ナ',ni:'ニ',nu:'ヌ',ne:'ネ',no:'ノ',ha:'ハ',hi:'ヒ',fu:'フ',he:'ヘ',ho:'ホ',
+  ma:'マ',mi:'ミ',mu:'ム',me:'メ',mo:'モ',ya:'ヤ',yu:'ユ',yo:'ヨ',
+  ra:'ラ',ri:'リ',ru:'ル',re:'レ',ro:'ロ',wa:'ワ',wo:'ヲ',n:'ン'
+};
+const tableD = [
+ ['が','gi?','ga'],['ぎ','gi','gi'],['ぐ','gu','gu'],['げ','ge','ge'],['ご','go','go'],
+ ['ざ','za','za'],['じ','ji','ji'],['ず','zu','zu'],['ぜ','ze','ze'],['ぞ','zo','zo'],
+ ['だ','da','da'],['ぢ','ji','ji'],['づ','zu','zu'],['で','de','de'],['ど','do','do'],
+ ['ば','ba','ba'],['び','bi','bi'],['ぶ','bu','bu'],['べ','be','be'],['ぼ','bo','bo'],
+ ['ぱ','pa','pa'],['ぴ','pi','pi'],['ぷ','pu','pu'],['ぺ','pe','pe'],['ぽ','po','po'],
+ ['ガ','ga','ga'],['ギ','gi','gi'],['グ','gu','gu'],['ゲ','ge','ge'],['ゴ','go','go'],
+ ['ザ','za','za'],['ジ','ji','ji'],['ズ','zu','zu'],['ゼ','ze','ze'],['ゾ','zo','zo'],
+ ['ダ','da','da'],['ヂ','ji','ji'],['ヅ','zu','zu'],['デ','de','de'],['ド','do','do'],
+ ['バ','ba','ba'],['ビ','bi','bi'],['ブ','bu','bu'],['ベ','be','be'],['ボ','bo','bo'],
+ ['パ','pa','pa'],['ピ','pi','pi'],['プ','pu','pu'],['ペ','pe','pe'],['ポ','po','po']
+];
+const tableY = [
+ ['きゃ','kya'],['きゅ','kyu'],['きょ','kyo'],['しゃ','sha'],['しゅ','shu'],['しょ','sho'],
+ ['ちゃ','cha'],['ちゅ','chu'],['ちょ','cho'],['にゃ','nya'],['にゅ','nyu'],['にょ','nyo'],
+ ['ひゃ','hya'],['ひゅ','hyu'],['ひょ','hyo'],['みゃ','mya'],['みゅ','myu'],['みょ','myo'],
+ ['りゃ','rya'],['りゅ','ryu'],['りょ','ryo'],['ぎゃ','gya'],['ぎゅ','gyu'],['ぎょ','gyo'],
+ ['じゃ','ja'],['じゅ','ju'],['じょ','jo'],['びゃ','bya'],['びゅ','byu'],['びょ','byo'],
+ ['ぴゃ','pya'],['ぴゅ','pyu'],['ぴょ','pyo'],
+ ['キャ','kya'],['キュ','kyu'],['キョ','kyo'],['シャ','sha'],['シュ','shu'],['ショ','sho'],
+ ['チャ','cha'],['チュ','chu'],['チョ','cho'],['ニャ','nya'],['ニュ','nyu'],['ニョ','nyo'],
+ ['ヒャ','hya'],['ヒュ','hyu'],['ヒョ','hyo'],['ミャ','mya'],['ミュ','myu'],['ミョ','myo'],
+ ['リャ','rya'],['リュ','ryu'],['リョ','ryo'],['ギャ','gya'],['ギュ','gyu'],['ギョ','gyo'],
+ ['ジャ','ja'],['ジュ','ju'],['ジョ','jo'],['ビャ','bya'],['ビュ','byu'],['ビョ','byo'],
+ ['ピャ','pya'],['ピュ','pyu'],['ピョ','pyo']
+];
+function renderKanaTable(type){
+  const wrap=document.getElementById('kanaTableWrap');
+  if(type==='d'){
+    wrap.innerHTML='<table class="kanaTable"><tbody><tr><th>Hiragana</th><th>Romaji</th><th>Katakana</th><th>Romaji</th></tr>'+
+      tableD.map(x=>`<tr><td class="kanaCell" data-k="${x[0]}"><div class="jp">${x[0]}</div></td><td>${x[1]}</td><td></td><td></td></tr>`).join('')+
+      '</tbody></table>';
+    // Rebuild dakuten as paired rows for clearer presentation.
+    const pairs=[];
+    for(let i=0;i<25;i++) pairs.push([tableD[i][0],tableD[i][1],tableD[i+25][0],tableD[i+25][1]]);
+    wrap.innerHTML='<table class="kanaTable"><thead><tr><th>Hiragana</th><th>Romaji</th><th>Katakana</th><th>Romaji</th></tr></thead><tbody>'+
+      pairs.map(x=>`<tr><td class="kanaCell" data-k="${x[0]}"><div class="jp">${x[0]}</div></td><td>${x[1]}</td><td class="kanaCell" data-k="${x[2]}"><div class="jp">${x[2]}</div></td><td>${x[3]}</td></tr>`).join('')+
+      '</tbody></table>';
+  } else if(type==='y'){
+    const pairs=[];
+    for(let i=0;i<32;i++) pairs.push([tableY[i][0],tableY[i][1],tableY[i+32][0],tableY[i+32][1]]);
+    wrap.innerHTML='<table class="kanaTable"><thead><tr><th>Hiragana</th><th>Romaji</th><th>Katakana</th><th>Romaji</th></tr></thead><tbody>'+
+      pairs.map(x=>`<tr><td class="kanaCell" data-k="${x[0]}"><div class="jp">${x[0]}</div></td><td>${x[1]}</td><td class="kanaCell" data-k="${x[2]}"><div class="jp">${x[2]}</div></td><td>${x[3]}</td></tr>`).join('')+
+      '</tbody></table>';
+  } else {
+    const map=type==='h'?tableMapH:tableMapK;
+    wrap.innerHTML='<table class="kanaTable"><thead><tr><th></th><th>A</th><th>I</th><th>U</th><th>E</th><th>O</th></tr></thead><tbody>'+
+      tableRows.map((r,idx)=>`<tr><th>${idx===0?'':r[0]||''}</th>${r.map((rom)=>rom?`<td class="kanaCell" data-k="${map[rom]}"><div class="jp">${map[rom]}</div><div class="ro">${rom}</div></td>`:'<td></td>').join('')}</tr>`).join('')+
+      '</tbody></table>';
+  }
+  wrap.querySelectorAll('.kanaCell').forEach(c=>{
+    c.onclick=()=>{
+      const k=c.dataset.k;
+      const all=[...hiragana,...katakana,...dakuten,...dakKat,...youon];
+      const found=all.find(x=>x[0]===k)||[k,''];
+      openBoard(found);
+    };
+  });
+}
+document.querySelectorAll('.tableTab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tableTab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); renderKanaTable(b.dataset.table);
+});
+renderKanaTable('h');
+
+const kanaRows=[
+  {name:'あ row', label:'あいうえお', h:['あ','い','う','え','お'], k:['ア','イ','ウ','エ','オ']},
+  {name:'か row', label:'かきくけこ', h:['か','き','く','け','こ'], k:['カ','キ','ク','ケ','コ']},
+  {name:'さ row', label:'さしすせそ', h:['さ','し','す','せ','そ'], k:['サ','シ','ス','セ','ソ']},
+  {name:'た row', label:'たちつてと', h:['た','ち','つ','て','と'], k:['タ','チ','ツ','テ','ト']},
+  {name:'な row', label:'なにぬねの', h:['な','に','ぬ','ね','の'], k:['ナ','ニ','ヌ','ネ','ノ']},
+  {name:'は row', label:'はひふへほ', h:['は','ひ','ふ','へ','ほ'], k:['ハ','ヒ','フ','ヘ','ホ']},
+  {name:'ま row', label:'まみむめも', h:['ま','み','む','め','も'], k:['マ','ミ','ム','メ','モ']},
+  {name:'や row', label:'やゆよ', h:['や','ゆ','よ'], k:['ヤ','ユ','ヨ']},
+  {name:'ら row', label:'らりるれろ', h:['ら','り','る','れ','ろ'], k:['ラ','リ','ル','レ','ロ']},
+  {name:'わ row', label:'わをん', h:['わ','を','ん'], k:['ワ','ヲ','ン']}
+];
+let unlockedRow=parseInt(localStorage.getItem('kanaUnlockedRow')||'0',10);
+
+function updateAdvancedLock(){
+  const locked=unlockedRow<kanaRows.length-1;
+  document.querySelector('.extraBox').style.opacity=locked?'0.55':'1';
+  document.querySelector('.extraBox').title=locked?'Completa prima tutti i kana base.':'Kana avanzati sbloccati!';
+  document.querySelectorAll('.extraCard').forEach(c=>{
+    c.style.pointerEvents=locked?'none':'auto';
+  });
+}
+
+function renderRows(){
+  const box=document.getElementById('rows');
+  box.innerHTML='';
+  kanaRows.forEach((r,i)=>{
+    const b=document.createElement('button');
+    b.className='rowBtn '+(i===unlockedRow?'active ':'')+(i>unlockedRow?'locked':'');
+    b.textContent=(i<=unlockedRow?'✓ ':'🔒 ')+r.label;
+    b.onclick=()=>{if(i<=unlockedRow){selectedRow=i;renderLearn();renderRows();}};
+    box.appendChild(b);
+  });
+  document.getElementById('unlockSub').textContent=`Riga ${unlockedRow+1} sbloccata. Completa una riga per sbloccare la successiva.`; updateAdvancedLock();
+}
+let selectedRow=unlockedRow;
+
+let viewedRows=JSON.parse(localStorage.getItem('kanaViewedRows')||'{}');
+function markKanaViewed(k){
+  const rowIndex=kanaRows.findIndex(r=>r.h.includes(k[0])||r.k.includes(k[0]));
+  if(rowIndex!==unlockedRow) return;
+  viewedRows[k[0]]=true;
+  localStorage.setItem('kanaViewedRows',JSON.stringify(viewedRows));
+  const needed=kanaRows[rowIndex].h.concat(kanaRows[rowIndex].k);
+  if(needed.every(x=>viewedRows[x])) unlockNextRow();
+}
+
+function unlockNextRow(){
+  if(selectedRow===unlockedRow && unlockedRow<kanaRows.length-1){
+    unlockedRow++;
+    selectedRow=unlockedRow;
+    localStorage.setItem('kanaUnlockedRow',unlockedRow);
+    renderRows();
+    renderLearn();
+  }
+}
+
+const dakuten=[
+ ['が','ga'],['ぎ','gi'],['ぐ','gu'],['げ','ge'],['ご','go'],
+ ['ざ','za'],['じ','ji'],['ず','zu'],['ぜ','ze'],['ぞ','zo'],
+ ['だ','da'],['ぢ','ji'],['づ','zu'],['で','de'],['ど','do'],
+ ['ば','ba'],['び','bi'],['ぶ','bu'],['べ','be'],['ぼ','bo'],
+ ['ぱ','pa'],['ぴ','pi'],['ぷ','pu'],['ぺ','pe'],['ぽ','po']
+];
+const dakKat=[
+ ['ガ','ga'],['ギ','gi'],['グ','gu'],['ゲ','ge'],['ゴ','go'],
+ ['ザ','za'],['ジ','ji'],['ズ','zu'],['ゼ','ze'],['ゾ','zo'],
+ ['ダ','da'],['ヂ','ji'],['ヅ','zu'],['デ','de'],['ド','do'],
+ ['バ','ba'],['ビ','bi'],['ブ','bu'],['ベ','be'],['ボ','bo'],
+ ['パ','pa'],['ピ','pi'],['プ','pu'],['ペ','pe'],['ポ','po']
+];
+const youon=[
+ ['きゃ','kya'],['きゅ','kyu'],['きょ','kyo'],['しゃ','sha'],['しゅ','shu'],['しょ','sho'],
+ ['ちゃ','cha'],['ちゅ','chu'],['ちょ','cho'],['にゃ','nya'],['にゅ','nyu'],['にょ','nyo'],
+ ['ひゃ','hya'],['ひゅ','hyu'],['ひょ','hyo'],['みゃ','mya'],['みゅ','myu'],['みょ','myo'],
+ ['りゃ','rya'],['りゅ','ryu'],['りょ','ryo'],['ぎゃ','gya'],['ぎゅ','gyu'],['ぎょ','gyo'],
+ ['じゃ','ja'],['じゅ','ju'],['じょ','jo'],['びゃ','bya'],['びゅ','byu'],['びょ','byo'],
+ ['ぴゃ','pya'],['ぴゅ','pyu'],['ぴょ','pyo']
+];
+
+const youonKat=[
+ ['キャ','kya'],['キュ','kyu'],['キョ','kyo'],['シャ','sha'],['シュ','shu'],['ショ','sho'],
+ ['チャ','cha'],['チュ','chu'],['チョ','cho'],['ニャ','nya'],['ニュ','nyu'],['ニョ','nyo'],
+ ['ヒャ','hya'],['ヒュ','hyu'],['ヒョ','hyo'],['ミャ','mya'],['ミュ','myu'],['ミョ','myo'],
+ ['リャ','rya'],['リュ','ryu'],['リョ','ryo'],['ギャ','gya'],['ギュ','gyu'],['ギョ','gyo'],
+ ['ジャ','ja'],['ジュ','ju'],['ジョ','jo'],['ビャ','bya'],['ビュ','byu'],['ビョ','byo'],
+ ['ピャ','pya'],['ピュ','pyu'],['ピョ','pyo']
+];
+const smallKana=[
+ ['ぁ','a'],['ぃ','i'],['ぅ','u'],['ぇ','e'],['ぉ','o'],['ゃ','ya'],['ゅ','yu'],['ょ','yo'],['っ','(piccola tsu)'],['ゎ','wa'],
+ ['ァ','a'],['ィ','i'],['ゥ','u'],['ェ','e'],['ォ','o'],['ャ','ya'],['ュ','yu'],['ョ','yo'],['ッ','(piccola tsu)'],['ヮ','wa']
+];
+const allKanaVariants=[...H,...K,...dakuten,...dakKat,...youon,...youonKat,...smallKana];
+let extraMode='dak';
+function renderExtra(){
+  const grid=document.getElementById('extraGrid');
+  const list=extraMode==='dak'?dakuten:youon;
+  grid.innerHTML=list.map(x=>`<div class="extraCard" data-k="${x[0]}"><div class="kana">${x[0]}</div><small>${x[1]}</small></div>`).join('');
+  grid.querySelectorAll('.extraCard').forEach(c=>c.onclick=()=>openBoard([c.dataset.k,c.querySelector('small').textContent]));
+}
+document.getElementById('dakTab').onclick=()=>{extraMode='dak';document.getElementById('dakTab').classList.add('active');document.getElementById('youTab').classList.remove('active');renderExtra()};
+document.getElementById('youTab').onclick=()=>{extraMode='you';document.getElementById('youTab').classList.add('active');document.getElementById('dakTab').classList.remove('active');renderExtra()};
+renderExtra();
+
+const missionTypes=[
+  {id:'quiz',target:5,xp:20,text:'Rispondi correttamente a 5 domande del quiz.'},
+  {id:'quiz',target:10,xp:30,text:'Rispondi correttamente a 10 domande del quiz.'},
+  {id:'write',target:3,xp:25,text:'Apri la lavagnetta e prova a scrivere 3 kana.'},
+  {id:'learn',target:5,xp:20,text:'Apri e studia 5 kana nella modalità Impara.'}
+];
+let mission=JSON.parse(localStorage.getItem('kanaMission')||'null');
+function setupMission(){
+  const today=localDateKey();
+  if(!mission || mission.date!==today){
+    const pick=missionTypes[Math.floor(Math.random()*missionTypes.length)];
+    mission={date:today,type:pick.id,target:pick.target,progress:0,xp:pick.xp,claimed:false};
+    localStorage.setItem('kanaMission',JSON.stringify(mission));
+  }
+  renderMission();
+}
+function missionInfo(){
+  return missionTypes.find(x=>x.id===mission.type)||missionTypes[0];
+}
+function renderMission(){
+  const info=missionInfo(), p=Math.min(mission.progress,mission.target);
+  document.getElementById('missionText').textContent=mission.claimed ? 'Missione completata! Ottimo lavoro, continua così.' : info.text;
+  document.getElementById('missionXP').textContent=`+${info.xp} XP`;
+  document.getElementById('missionFill').style.width=`${Math.round(p/mission.target*100)}%`;
+  document.getElementById('missionStatus').textContent=mission.claimed ? '✓ Completata oggi' : `${p} / ${mission.target}`;
+}
+function missionProgress(type,n=1){
+  if(!mission || mission.claimed || mission.type!==type) return;
+  mission.progress=Math.min(mission.target,mission.progress+n);
+  if(mission.progress>=mission.target){
+    mission.claimed=true;
+    daily.xp=(daily.xp||0)+mission.xp;
+    localStorage.setItem('kanaDaily',JSON.stringify(daily));
+    document.getElementById('dailyBonus').classList.add('bonusPulse');
+  }
+  localStorage.setItem('kanaMission',JSON.stringify(mission));
+  renderMission();
+}
+
+function localDateKey(d=new Date()){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
+function dateDiff(a,b){const aa=new Date(a+'T12:00:00'),bb=new Date(b+'T12:00:00');return Math.round((bb-aa)/86400000);}
+function updateDailyBonus(){const today=localDateKey(),badge=document.getElementById('bonusBadge');if(daily.last===today){document.getElementById('bonusMessage').textContent='Bonus già riscosso. Torna domani per continuare la serie!';document.getElementById('bonusXP').textContent='+10 XP';badge.textContent='✓ Riscosso';badge.classList.add('claimed');}else{const gap=daily.last?dateDiff(daily.last,today):999;if(gap===1)daily.streak++;else if(gap!==0)daily.streak=1;else daily.streak=Math.max(1,daily.streak);const day=daily.streak;let reward=10,message='Hai aperto Kana Studio oggi: +10 XP!';if(day===3){reward=20;message='🔥 3 giorni di fila! Bonus speciale: +20 XP!';}else if(day===7){reward=50;message='🏆 Una settimana! Bonus speciale: +50 XP!';}else if(day%7===0){reward=30;message=`🔥 ${day} giorni di fila! Bonus speciale: +30 XP!`;}daily.xp=(daily.xp||0)+reward;daily.totalDays=(daily.totalDays||0)+1;daily.last=today;localStorage.setItem('kanaDaily',JSON.stringify(daily));document.getElementById('bonusMessage').textContent=message;document.getElementById('bonusXP').textContent=`+${reward} XP`;badge.textContent='🎉 Riscosso';badge.classList.add('claimed');document.getElementById('dailyBonus').classList.add('bonusPulse');}document.getElementById('streakCount').textContent=`${daily.streak||0} ${(daily.streak||0)===1?'giorno':'giorni'}`;}
+
+function data(set){return set==='hira'?H:set==='kata'?K:[...H,...K]}
+function renderLearn(){let set=document.getElementById('learnSet').value;let groups=[];if(set==='both'){groups=[['Hiragana',H],['Katakana',K]]}else groups=[[set==='hira'?'Hiragana':'Katakana',set==='hira'?H:K]];document.getElementById('learnGrid').innerHTML=groups.map(([title,d])=>`<div class="rowtitle">${title}</div><div class="row">${d.map(([c,r])=>`<div class="kana" onclick="openWriter('${c}')"><b>${c}</b><small>${r}</small></div>`).join('')}</div>`).join('')}
+function tell(c,r){last=[c,r];document.getElementById('note').textContent=`${c} = ${r}`;speak(r)}
+function speak(r){try{speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(r);u.lang='ja-JP';u.rate=.72;speechSynthesis.speak(u)}catch(e){}}
+function speakLast(){if(last)speak(last[1])}
+function show(id,el){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');if(id==='learn')renderLearn();else startQuiz()}
+function startQuiz(){score=0;total=0;wrong=0;nextQ()}
+function pool(){let set=document.getElementById('quizSet').value;if(set==='errors'){let keys=Object.keys(errors).filter(k=>errors[k]>0);return allKanaVariants.filter(x=>keys.includes(x[0]))}if(set==='all')return allKanaVariants;return data(set)}
+function nextQ(){let p=pool();if(!p.length){document.getElementById('symbol').textContent='🎉';document.getElementById('prompt').textContent='Nessun errore da ripassare!';document.getElementById('choices').innerHTML='';document.getElementById('feedback').textContent='';return}let mode=document.getElementById('quizMode').value;current=p[Math.floor(Math.random()*p.length)];let candidates=p.filter(x=>x!==current);let others=[];while(others.length<3&&candidates.length){let x=candidates.splice(Math.floor(Math.random()*candidates.length),1)[0];if(!others.some(y=>y[1]===x[1]&&y[0]!==x[0]))others.push(x)}while(others.length<3){let base=(document.getElementById('quizSet').value==='all'||document.getElementById('quizSet').value==='errors')?allKanaVariants:data('both');let x=base[Math.floor(Math.random()*base.length)];if(x!==current&&!others.includes(x))others.push(x)}let opts=mode==='read'?[current,...others].sort(()=>Math.random()-.5):[current,...others].sort(()=>Math.random()-.5);document.getElementById('mode').textContent=mode==='read'?'Kana → romaji':mode==='write'?'Romaji → kana':'Audio → kana';document.getElementById('symbol').textContent=mode==='read'?current[0]:mode==='write'?current[1]:'🔊';document.getElementById('prompt').textContent=mode==='read'?'Qual è la lettura?':mode==='write'?'Qual è il carattere?':'Quale kana hai sentito?';document.getElementById('choices').innerHTML=opts.map(x=>`<button class="choice" onclick="answer('${x[0]}',this)">${mode==='read'?x[1]:x[0]}</button>`).join('');document.getElementById('feedback').textContent='';document.getElementById('bar').style.width=Math.min(100,total*10)+'%';document.getElementById('replayAudio').style.display=mode==='audio'?'block':'none';if(mode==='audio'){setTimeout(()=>speak(current[1]),120)}updateStats()}
+function answer(v,el){if(!current||el.disabled)return;document.querySelectorAll('.choice').forEach(x=>x.disabled=true);total++;if(v===current[0]){score++;el.classList.add('correct');document.getElementById('feedback').textContent='✓ Corretto!';errors[current[0]]=Math.max(0,(errors[current[0]]||0)-1)}else{el.classList.add('wrong');document.getElementById('feedback').textContent=`La risposta è ${current[0]} = ${current[1]}`;errors[current[0]]=(errors[current[0]]||0)+1;document.querySelectorAll('.choice').forEach(x=>{if(x.textContent===(document.getElementById('quizMode').value==='read'?current[1]:current[0]))x.classList.add('correct')}) ;wrong++}localStorage.setItem('kanaErrors',JSON.stringify(errors));document.getElementById('score').textContent=score;document.getElementById('bar').style.width=Math.min(100,total*10)+'%';updateStats()}
+function updateStats(){let acc=total?Math.round(score/total*100):0;document.getElementById('accuracy').textContent=acc+'%';document.getElementById('mistakes').textContent=Object.values(errors).reduce((a,b)=>a+b,0);document.getElementById('mastered').textContent=Object.keys(errors).filter(k=>errors[k]===0).length}
+function resetStats(){if(confirm('Azzero gli errori, i progressi e il bonus giornaliero?')){errors={};localStorage.removeItem('kanaErrors');localStorage.removeItem('kanaDaily');localStorage.removeItem('kanaMission');localStorage.removeItem('kanaUnlockedRow');localStorage.removeItem('kanaViewedRows');unlockedRow=0;selectedRow=0;viewedRows={};daily={last:'',streak:0,xp:0,totalDays:0};mission=null;score=total=wrong=0;updateStats();updateDailyBonus();setupMission();renderRows();nextQ()}}
+renderLearn();updateStats();updateDailyBonus();setupMission();
+
+const kanaExamples={
+'あ':['a','あさ','mattina'], 'い':['i','いぬ','cane'], 'う':['u','うみ','mare'], 'え':['e','えき','stazione'], 'お':['o','おちゃ','tè'],
+'か':['ka','かさ','ombrello'], 'き':['ki','き','albero'], 'く':['ku','くるま','auto'], 'け':['ke','けさ','questa mattina'], 'こ':['ko','こえ','voce'],
+'さ':['sa','さかな','pesce'], 'し':['shi','しお','sale'], 'す':['su','すし','sushi'], 'せ':['se','せんせい','insegnante'], 'そ':['so','そら','cielo'],
+'た':['ta','たまご','uovo'], 'ち':['chi','ちず','mappa'], 'つ':['tsu','つき','luna'], 'て':['te','て','mano'], 'と':['to','とけい','orologio'],
+'な':['na','なつ','estate'], 'に':['ni','にく','carne'], 'ぬ':['nu','ぬの','tessuto'], 'ね':['ne','ねこ','gatto'], 'の':['no','のみもの','bevanda'],
+'は':['ha','はな','fiore'], 'ひ':['hi','ひと','persona'], 'ふ':['fu','ふね','barca'], 'へ':['he','へや','stanza'], 'ほ':['ho','ほし','stella'],
+'ま':['ma','まど','finestra'], 'み':['mi','みず','acqua'], 'む':['mu','むし','insetto'], 'め':['me','め','occhio'], 'も':['mo','もり','foresta'],
+'や':['ya','やま','montagna'], 'ゆ':['yu','ゆき','neve'], 'よ':['yo','よる','notte'],
+'ら':['ra','らいねん','anno prossimo'], 'り':['ri','りんご','mela'], 'る':['ru','るす','assenza'], 'れ':['re','れきし','storia'], 'ろ':['ro','ろうそく','candela'],
+'わ':['wa','わたし','io'], 'を':['wo','を','particella grammaticale'], 'ん':['n','ほん','libro'],
+'ア':['a','アニメ','anime'], 'イ':['i','イタリア','Italia'], 'ウ':['u','ウミ','mare'], 'エ':['e','エキ','stazione'], 'オ':['o','オチャ','tè'],
+'カ':['ka','カサ','ombrello'], 'キ':['ki','キ','albero'], 'ク':['ku','クルマ','auto'], 'ケ':['ke','ケサ','questa mattina'], 'コ':['ko','コエ','voce'],
+'サ':['sa','サカナ','pesce'], 'シ':['shi','シオ','sale'], 'ス':['su','スシ','sushi'], 'セ':['se','センセイ','insegnante'], 'ソ':['so','ソラ','cielo'],
+'タ':['ta','タマゴ','uovo'], 'チ':['chi','チズ','mappa'], 'ツ':['tsu','ツキ','luna'], 'テ':['te','テ','mano'], 'ト':['to','トケイ','orologio'],
+'ナ':['na','ナツ','estate'], 'ニ':['ni','ニク','carne'], 'ヌ':['nu','ヌノ','tessuto'], 'ネ':['ne','ネコ','gatto'], 'ノ':['no','ノミモノ','bevanda'],
+'ハ':['ha','ハナ','fiore'], 'ヒ':['hi','ヒト','persona'], 'フ':['fu','フネ','barca'], 'ヘ':['he','ヘヤ','stanza'], 'ホ':['ho','ホシ','stella'],
+'マ':['ma','マド','finestra'], 'ミ':['mi','ミズ','acqua'], 'ム':['mu','ムシ','insetto'], 'メ':['me','メ','occhio'], 'モ':['mo','モリ','foresta'],
+'ヤ':['ya','ヤマ','montagna'], 'ユ':['yu','ユキ','neve'], 'ヨ':['yo','ヨル','notte'], 'ラ':['ra','ライネン','anno prossimo'], 'リ':['ri','リンゴ','mela'], 'ル':['ru','ルス','assenza'], 'レ':['re','レキシ','storia'], 'ロ':['ro','ロウソク','candela'], 'ワ':['wa','ワタシ','io'], 'ヲ':['wo','ヲ','particella grammaticale'], 'ン':['n','ホン','libro']};
+const writerCanvas=document.getElementById('writerCanvas'); const writerModal=document.getElementById('writerModal'); const writerCtx=writerCanvas.getContext('2d'); let drawing=false, writerData=null;
+let dailyWritingKana=null; let writerMemoryMode=false; let writerMemoryRevealed=false;
+function resizeWriterCanvas(){const r=writerCanvas.getBoundingClientRect(), d=window.devicePixelRatio||1; writerCanvas.width=r.width*d; writerCanvas.height=r.height*d; writerCtx.setTransform(d,0,0,d,0,0); writerCtx.lineWidth=5; writerCtx.lineCap='round'; writerCtx.lineJoin='round'; writerCtx.strokeStyle='#172033';}
+function pos(e){const r=writerCanvas.getBoundingClientRect(); const p=e.touches?e.touches[0]:e; return [p.clientX-r.left,p.clientY-r.top]}
+function startDraw(e){
+  if(writerMemoryMode && !writerMemoryRevealed){
+    revealMemorySolution();
+  }
+  if(dailyWritingKana && dailyState && dailyState.started){
+    const key='written_'+dailyToday();
+    const done=JSON.parse(localStorage.getItem(key)||'[]');
+    if(!done.includes(dailyWritingKana)){
+      done.push(dailyWritingKana); localStorage.setItem(key,JSON.stringify(done));
+      dailyState.xp += 5; saveDailyLesson();
+      const xpEl=document.getElementById('lessonXP'); if(xpEl) xpEl.textContent='+'+dailyState.xp+' XP';
+    }
+  }
+  e.preventDefault();drawing=true;writerCtx.beginPath();const [x,y]=pos(e);writerCtx.moveTo(x,y)
+}
+function moveDraw(e){if(!drawing)return;e.preventDefault();const [x,y]=pos(e);writerCtx.lineTo(x,y);writerCtx.stroke()}
+function endDraw(){drawing=false}
+['pointerdown','touchstart'].forEach(ev=>writerCanvas.addEventListener(ev,startDraw,{passive:false})); ['pointermove','touchmove'].forEach(ev=>writerCanvas.addEventListener(ev,moveDraw,{passive:false})); ['pointerup','pointercancel','touchend'].forEach(ev=>writerCanvas.addEventListener(ev,endDraw));
+function clearCanvas(){writerCtx.clearRect(0,0,writerCanvas.width/(devicePixelRatio||1),writerCanvas.height/(devicePixelRatio||1))}
+function openWriter(k,memory=false){
+  dailyWritingKana=(dailyState && dailyState.started && dailyState.kana.includes(k))?k:null;
+  writerMemoryMode=memory; writerMemoryRevealed=!memory;
+  writerData=kanaExamples[k]||[k,'',''];
+  document.getElementById('writerKana').textContent=memory?'?':k;
+  document.getElementById('writerMeaning').textContent=memory?'Prova a ricordare il suono e la forma.':'Lettura: '+writerData[0];
+  document.getElementById('writerExample').innerHTML=memory?'Scrivi il kana a memoria.':'';
+  if(!memory) document.getElementById('writerExample').innerHTML=writerData[1]?'<b>'+writerData[1]+'</b> — '+writerData[2]:'Questo kana indica il suono “'+writerData[0]+'”.';
+  document.getElementById('writerGuide').textContent=k;
+  document.getElementById('writerGuide').style.display=memory?'none':'flex';
+  document.getElementById('showGuide').checked=!memory;
+  document.getElementById('strokeArea').style.display=memory?'none':document.getElementById('strokeArea').style.display;
+  const revealBtn=document.getElementById('memoryRevealBtn'); if(revealBtn) revealBtn.style.display=memory?'inline-flex':'none';
+  writerModal.classList.add('open');writerModal.setAttribute('aria-hidden','false');
+  setTimeout(()=>{resizeWriterCanvas();clearCanvas()},50)
+}
+function revealMemorySolution(){
+  if(!writerMemoryMode || writerMemoryRevealed) return;
+  writerMemoryRevealed=true;
+  document.getElementById('writerKana').textContent=dailyWritingKana||'?';
+  document.getElementById('writerMeaning').textContent='Lettura: '+writerData[0];
+  document.getElementById('writerExample').innerHTML=writerData[1]?'<b>'+writerData[1]+'</b> — '+writerData[2]:'Questo kana indica il suono “'+writerData[0]+'”.';
+  const btn=document.getElementById('memoryRevealBtn'); if(btn) btn.style.display='none';
+  document.getElementById('writerGuide').style.display='none';
+}
+
+let strokeSpeed=900;
+function strokeUrl(k){const group=/[\u3040-\u309f]/.test(k)?'hiragana':'katakana';return 'https://cdn.jsdelivr.net/npm/kana-svg-data/dist/'+group+'/'+encodeURIComponent(k)+'.json'}
+async function playStrokes(){const area=document.getElementById('strokeArea'),box=document.getElementById('strokeSvg'),loading=document.getElementById('strokeLoading');area.style.display='block';box.innerHTML='';loading.style.display='block';loading.textContent='Caricamento ordine dei tratti…';try{const r=await fetch(strokeUrl(document.getElementById('writerKana').textContent));if(!r.ok)throw new Error('stroke data');const data=await r.json();loading.style.display='none';const prefix='k'+data.charCode;let defs='<defs>';for(const st of data.strokes){defs+='<clipPath id="'+prefix+'c'+st.id+'"><path d="'+st.value+'"/></clipPath>'}defs+='</defs>';let svg='<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" class="strokeSvg">'+defs;for(const st of data.strokes){if(st.value)svg+='<path d="'+st.value+'" fill="#d7dce5"/>'}for(const st of data.clipPaths){if(!st.value)continue;svg+='<path d="'+st.value+'" clip-path="url(#'+prefix+'c'+st.id+')" fill="none" stroke="#172033" stroke-width="128" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" class="animStroke"/>'}svg+='</svg>';box.innerHTML=svg;[...box.querySelectorAll('.animStroke')].forEach((el,i)=>{el.style.animation='strokeDraw '+strokeSpeed+'ms ease forwards';el.style.animationDelay=(i*strokeSpeed)+'ms'})}catch(e){loading.style.display='block';loading.textContent='Per l’animazione serve una connessione internet. La lavagnetta continua a funzionare anche offline.'}}
+function toggleStrokeSpeed(){strokeSpeed=strokeSpeed===900?1400:900;document.getElementById('speedBtn').textContent='Velocità: '+(strokeSpeed===900?'normale':'lenta');if(document.getElementById('strokeArea').style.display!=='none')playStrokes()}
+function closeWriter(){writerModal.classList.remove('open');writerModal.setAttribute('aria-hidden','true')}
+writerModal.addEventListener('click',e=>{if(e.target===writerModal)closeWriter()}); window.addEventListener('resize',()=>{if(writerModal.classList.contains('open'))resizeWriterCanvas()});
+function toggleGuide(){const cb=document.getElementById('showGuide');document.getElementById('writerGuide').style.display=cb.checked?'flex':'none'}
+function speakWriter(){if(!writerData)return;const u=new SpeechSynthesisUtterance(writerData[0]);u.lang='ja-JP';speechSynthesis.cancel();speechSynthesis.speak(u)}
+</script>
+<div class="modal" id="writerModal" aria-hidden="true"><div class="sheet" onclick="event.stopPropagation()"><div class="sheetHead"><div><div class="sheetKana" id="writerKana">あ</div><div class="meaning" id="writerMeaning">Lettura: a</div></div><button class="secondary" onclick="closeWriter()">Chiudi</button></div><div class="example" id="writerExample"></div>
+<div class="strokeBox"><div class="strokeHead"><div class="strokeTitle">✍️ Ordine dei tratti</div><button class="secondary" id="strokeBtn" onclick="playStrokes()">▶ Mostra</button></div><div id="strokeArea" style="display:none"><div id="strokeLoading" class="strokeNote">Caricamento...</div><div id="strokeSvg" class="strokeSvg"></div><div class="strokeActions"><button class="secondary" onclick="playStrokes()">↻ Ripeti</button><button class="secondary" onclick="toggleStrokeSpeed()" id="speedBtn">Velocità: normale</button></div><div class="strokeNote">Guarda il tratto apparire nell’ordine corretto, poi prova sulla lavagnetta.</div></div></div><div class="canvasWrap"><div class="guide" id="writerGuide">あ</div><canvas id="writerCanvas"></canvas></div><div class="guideToggle"><input type="checkbox" id="showGuide" checked onchange="toggleGuide()"><label for="showGuide">Mostra il kana come suggerimento</label></div><div class="sheetBtns"><button class="secondary" onclick="clearCanvas()">Cancella</button><button onclick="speakWriter()">🔊 Ascolta</button><button class="secondary" id="memoryRevealBtn" onclick="revealMemorySolution()" style="display:none">👁 Mostra soluzione</button></div><div class="small">Puoi disattivare il suggerimento e provare a scrivere il kana a memoria.</div></div></div>
+
+<script>
+const DAILY_LESSON_VERSION = "v1";
+const DAILY_LESSON_KEY = "kanaDailyLesson";
+const DAILY_LESSON_XP_KEY = "kanaDailyLessonXP";
+
+const dailyRows = [
+  ["あ","い","う","え","お"],
+  ["か","き","く","け","こ"],
+  ["さ","し","す","せ","そ"],
+  ["た","ち","つ","て","と"],
+  ["な","に","ぬ","ね","の"],
+  ["は","ひ","ふ","へ","ほ"],
+  ["ま","み","む","め","も"],
+  ["や","ゆ","よ"],
+  ["ら","り","る","れ","ろ"],
+  ["わ","を","ん"]
+];
+const dailyRomaji = {
+ "あ":"a","い":"i","う":"u","え":"e","お":"o",
+ "か":"ka","き":"ki","く":"ku","け":"ke","こ":"ko",
+ "さ":"sa","し":"shi","す":"su","せ":"se","そ":"so",
+ "た":"ta","ち":"chi","つ":"tsu","て":"te","と":"to",
+ "な":"na","に":"ni","ぬ":"nu","ね":"ne","の":"no",
+ "は":"ha","ひ":"hi","ふ":"fu","へ":"he","ほ":"ho",
+ "ま":"ma","み":"mi","む":"mu","め":"me","も":"mo",
+ "や":"ya","ゆ":"yu","よ":"yo",
+ "ら":"ra","り":"ri","る":"ru","れ":"re","ろ":"ro",
+ "わ":"wa","を":"wo","ん":"n"
+};
+const dailyWords = [
+  ["あさ","asa","mattina"],["いぬ","inu","cane"],["うえ","ue","sopra"],
+  ["えき","eki","stazione"],["おと","oto","suono"],
+  ["かさ","kasa","ombrello"],["き","ki","albero"],["くち","kuchi","bocca"],
+  ["ここ","koko","qui"],["さかな","sakana","pesce"],["すし","sushi","sushi"],
+  ["そら","sora","cielo"],["たこ","tako","polpo"],["ちず","chizu","mappa"],
+  ["つき","tsuki","luna"],["とけい","tokei","orologio"],
+  ["ねこ","neko","gatto"],["みず","mizu","acqua"],["やま","yama","montagna"],
+  ["ゆき","yuki","neve"],["よる","yoru","notte"]
+];
+
+let dailyState = {
+  day:"",
+  step:0,
+  xp:0,
+  kana:[],
+  word:null,
+  started:false,
+  done:false
+};
+
+function dailyToday(){
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function loadDailyLesson(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(DAILY_LESSON_KEY)||"null");
+    if(saved && saved.day===dailyToday()){ dailyState=saved; }
+    else{
+      dailyState={day:dailyToday(),step:0,xp:0,kana:pickDailyKana(),word:null,started:false,done:false};
+      saveDailyLesson();
+    }
+  }catch(e){
+    dailyState={day:dailyToday(),step:0,xp:0,kana:pickDailyKana(),word:null,started:false,done:false};
+  }
+  renderDailyLesson();
+}
+function saveDailyLesson(){ localStorage.setItem(DAILY_LESSON_KEY,JSON.stringify(dailyState)); }
+function pickDailyKana(){
+  // Use the current unlocked row when the existing app exposes one.
+  let unlocked=0;
+  try{ unlocked=parseInt(localStorage.getItem("kanaUnlockedRow")||"0",10); }catch(e){}
+  unlocked=Math.max(0,Math.min(dailyRows.length-1,unlocked));
+  const pool=dailyRows.slice(0,unlocked+1).flat();
+  const shuffled=pool.slice().sort(()=>Math.random()-.5);
+  return shuffled.slice(0,Math.min(5,Math.max(3,pool.length)));
+}
+function startDailyLesson(){
+  if(dailyState.done){
+    dailyState={day:dailyToday(),step:0,xp:0,kana:pickDailyKana(),word:null,started:true,done:false};
+  }else dailyState.started=true;
+  saveDailyLesson(); renderDailyLesson();
+}
+function dailyFinish(){
+  dailyState.done=true;
+  dailyState.xp=Math.max(dailyState.xp,50);
+  localStorage.setItem(DAILY_LESSON_XP_KEY,String(dailyState.xp));
+  saveDailyLesson();
+  renderDailyLesson();
+}
+function nextLessonStep(){
+  dailyState.step++;
+  if(dailyState.step>=dailyState.kana.length+2){ dailyFinish(); return; }
+  saveDailyLesson(); renderDailyLesson();
+}
+function dailyAnswer(k, btn){
+  const target=dailyState.kana[Math.min(dailyState.step,dailyState.kana.length-1)];
+  const correct=dailyRomaji[target]===k;
+  document.querySelectorAll(".lesson-options button").forEach(b=>b.disabled=true);
+  const result=document.getElementById("dailyResult");
+  if(result){
+    result.textContent=correct ? "✓ Corretto! +5 XP" : "✗ Quasi! La risposta era "+dailyRomaji[target];
+  }
+  if(correct) dailyState.xp+=5;
+  saveDailyLesson();
+  const next=document.getElementById("lessonNextBtn");
+  if(next) next.style.display="inline-flex";
+}
+function renderDailyLesson(){
+  const content=document.getElementById("lessonContent");
+  const stepEl=document.getElementById("lessonStep");
+  const bar=document.getElementById("lessonProgressBar");
+  const xp=document.getElementById("lessonXP");
+  const start=document.getElementById("lessonStartBtn");
+  const next=document.getElementById("lessonNextBtn");
+  if(!content) return;
+  xp.textContent="+"+dailyState.xp+" XP";
+  if(dailyState.done){
+    stepEl.textContent="Lezione completata 🎉";
+    bar.style.width="100%";
+    content.innerHTML='<div class="lesson-kana">🎉</div><div class="lesson-result">Ottimo lavoro! Hai completato la lezione di oggi.</div><div class="lesson-meaning">Domani troverai una nuova mini-lezione.</div>';
+    start.textContent="↻ Rifai la lezione";
+    start.style.display="inline-flex";
+    next.style.display="none";
+    return;
+  }
+  if(!dailyState.started){
+    stepEl.textContent="Oggi: "+dailyState.kana.join(" · ");
+    bar.style.width="0%";
+    content.innerHTML='<div class="lesson-kana">5 min</div><div class="lesson-meaning">Impara alcuni kana, fai un mini quiz e leggi una parola semplice.</div>';
+    start.textContent="▶ Inizia la lezione";
+    start.style.display="inline-flex";
+    next.style.display="none";
+    return;
+  }
+  start.style.display="none";
+  const total=dailyState.kana.length+2;
+  const s=dailyState.step;
+  bar.style.width=Math.round((s/total)*100)+"%";
+  if(s<dailyState.kana.length){
+    const k=dailyState.kana[s];
+    stepEl.textContent="Nuovo/ripasso kana · "+(s+1)+" di "+total;
+    content.innerHTML='<div class="lesson-kana">?</div><div class="lesson-romaji">Prova a ricordare il kana</div><div class="lesson-meaning">Scrivilo a memoria, senza guardare il modello. Dopo il primo tratto potrai vedere la soluzione.</div><div style="text-align:center;margin-top:14px"><button class="primary" onclick="openWriter(\''+k+'\',true)">✍️ Scrivi a memoria</button></div><div class="lesson-meaning" style="margin-top:8px">La prima pennellata di oggi vale +5 XP.</div>';
+    next.style.display="inline-flex";
+    next.textContent="Continua →";
+  }else if(s===dailyState.kana.length){
+    const target=dailyState.kana[Math.floor(Math.random()*dailyState.kana.length)];
+    const opts=[dailyRomaji[target]];
+    while(opts.length<4){
+      const candidate=Object.values(dailyRomaji)[Math.floor(Math.random()*Object.values(dailyRomaji).length)];
+      if(!opts.includes(candidate)) opts.push(candidate);
+    }
+    opts.sort(()=>Math.random()-.5);
+    stepEl.textContent="Mini quiz";
+    content.innerHTML='<div class="lesson-kana">'+target+'</div><div class="lesson-options">'+opts.map(o=>'<button onclick="dailyAnswer(this.dataset.r,this)" data-r="'+o.replace(/"/g,'&quot;')+'">'+o+'</button>').join('')+'</div><div id="dailyResult" class="lesson-result"></div>';
+    next.style.display="none";
+  }else{
+    if(!dailyState.word) dailyState.word=dailyWords[Math.floor(Math.random()*dailyWords.length)];
+    const w=dailyState.word;
+    stepEl.textContent="Una parola vera";
+    content.innerHTML='<div class="lesson-word">'+w[0]+'</div><div class="lesson-romaji">'+w[1]+'</div><div class="lesson-meaning">🇮🇹 '+w[2]+'</div>';
+    next.style.display="inline-flex";
+    next.textContent="✓ Completa";
+  }
+}
+document.addEventListener("DOMContentLoaded",loadDailyLesson);
+</script>
+
+</body></html>
